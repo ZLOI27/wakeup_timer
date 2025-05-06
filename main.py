@@ -5,7 +5,7 @@ from selenium.webdriver.firefox.options import Options
 
 def main() -> None:
     """
-    This programm set timer to wakeup system from suspend.
+    This programm set timer to wakeup system from suspend and open browser.
     """
     time_wakeup = input("Enter time hh:mm: ").strip() # It is required to add check correct input
     os.system(f"sudo rtcwake -u --date {time_wakeup}") # It is required to add 'try except'
@@ -13,6 +13,7 @@ def main() -> None:
     time.sleep(5)
     while True:
         if check_internet():
+            os.system("pactl set-sink-volume @DEFAULT_SINK@ 50%")
             driver = webdriver.Firefox()
             driver.get("https://www.rbc.ru")
             break
