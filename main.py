@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 
 WEBSITE = "https://www.rbc.ru"
 TIME_OF_NEWS = 20
+STANDART_TIME_WAKEUP = '05:30'
 
 
 def main() -> None:
@@ -15,12 +16,9 @@ def main() -> None:
     This programm set timer to wakeup system from suspend and opens
     a browser and website with news.
     """
-    time_wakeup = input(
-        "Enter time hh:mm: "
-    ).strip()  # It is required to add check correct input
     os.system(
-        f"sudo rtcwake -u --date {time_wakeup}"
-    )  # It is required to add 'try except'
+        f"sudo rtcwake -u --date {get_time_wakeup(STANDART_TIME_WAKEUP)}"
+    ) 
     os.system("sudo systemctl suspend")  # Temporary line -----
     time.sleep(5)
     while True:
@@ -73,5 +71,22 @@ def site_sound_on(driver: object) -> None:
     volume_btn.click()
 
 
+def get_time_wakeup(STANDART_TIME_WAKEUP) -> str:
+    while True:
+        time = input( "Enter time hh:mm : ").strip()
+        length = len(time)
+        if length == 5:
+            time = time[0:2] + ':' + time[3:5]
+            break
+        elif length == 4:
+            time = time[0:1] + ':' + time[2:4]
+            break
+        elif length == 0:
+            time = STANDART_TIME_WAKEUP
+            break
+    return time
+
+
 if __name__ == "__main__":
     main()
+
