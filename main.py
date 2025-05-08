@@ -75,16 +75,19 @@ def get_time_wakeup(STANDART_TIME_WAKEUP) -> str:
     while True:
         time = input( "Enter time hh:mm : ").strip()
         length = len(time)
-        if length == 5:
-            time = time[0:2] + ':' + time[3:5]
-            break
-        elif length == 4:
-            time = time[0:1] + ':' + time[2:4]
-            break
+        time_wakeup = ''
+        if 4 <= length <= 5:
+            if ((not time[-3].isdigit()) and time[:-3].isdigit()
+                    and time[-2:].isdigit() and (00 <= int(time[-2:]) <= 59)
+                    and (00 <= int(time[:-3]) <= 23)):
+                time_wakeup = time[:-3] + ':' + time[-2:] 
+                break
+            else:
+                continue
         elif length == 0:
-            time = STANDART_TIME_WAKEUP
+            time_wakeup = STANDART_TIME_WAKEUP
             break
-    return time
+    return time_wakeup
 
 
 if __name__ == "__main__":
