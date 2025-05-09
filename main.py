@@ -6,8 +6,8 @@ from selenium.webdriver.common.by import By
 
 
 WEBSITE = "https://www.rbc.ru"
-TIME_OF_NEWS = 20 # Seconds
-TIME_WAKEUP = '05:30'
+TIME_OF_NEWS = 20  # Seconds
+TIME_WAKEUP = "05:30"
 
 
 def main() -> None:
@@ -15,7 +15,7 @@ def main() -> None:
     This programm set timer to wakeup system from suspend and opens
     a browser and website with news.
     """
-    os.system( f"sudo rtcwake -u --date {get_time_wakeup(TIME_WAKEUP)}") 
+    os.system(f"sudo rtcwake -u --date {get_time_wakeup(TIME_WAKEUP)}")
     if int(input("Suspend? 1 - yes, 0 - no :")):
         os.system("sudo systemctl suspend")
     time.sleep(5)
@@ -52,6 +52,7 @@ def check_internet(host="8.8.8.8", port=53, timeout=3) -> bool:
 
 
 def full_screen_on(driver: object) -> None:
+    """Fullscreen videostream on the website."""
     full_screen_btn = driver.find_element(
         By.CLASS_NAME, "video-player__controls__fullscreen"
     )
@@ -63,22 +64,32 @@ def full_screen_on(driver: object) -> None:
 
 
 def site_sound_on(driver: object) -> None:
+    """Turn on the sound on the website."""
     volume_btn = driver.find_element(
-        By.CLASS_NAME, "video-player__controls__volume"
+            By.CLASS_NAME, "video-player__controls__volume"
     )
     volume_btn.click()
 
 
 def get_time_wakeup(TIME_WAKEUP) -> str:
+    """
+    This function asks you to enter the time in the format hh*mm or
+    h*mm (* is any character) and processes it. If no time is entered,
+    then the standard time is taken from the constant.
+    """
     while True:
-        time = input( "Enter time hh:mm : ").strip()
+        time = input("Enter time hh:mm : ").strip()
         length = len(time)
-        time_wakeup = ''
+        time_wakeup = ""
         if 4 <= length <= 5:
-            if ((not time[-3].isdigit()) and time[:-3].isdigit()
-                    and time[-2:].isdigit() and (00 <= int(time[-2:]) <= 59)
-                    and (00 <= int(time[:-3]) <= 23)):
-                time_wakeup = time[:-3] + ':' + time[-2:] 
+            if (
+                (not time[-3].isdigit())
+                and time[:-3].isdigit()
+                and time[-2:].isdigit()
+                and (00 <= int(time[-2:]) <= 59)
+                and (00 <= int(time[:-3]) <= 23)
+            ):
+                time_wakeup = time[:-3] + ":" + time[-2:]
                 break
             else:
                 continue
@@ -90,4 +101,3 @@ def get_time_wakeup(TIME_WAKEUP) -> str:
 
 if __name__ == "__main__":
     main()
-
