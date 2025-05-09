@@ -2,13 +2,12 @@ import socket
 import os
 import time
 from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 
 
 WEBSITE = "https://www.rbc.ru"
-TIME_OF_NEWS = 20
-STANDART_TIME_WAKEUP = '05:30'
+TIME_OF_NEWS = 20 # Seconds
+TIME_WAKEUP = '05:30'
 
 
 def main() -> None:
@@ -16,10 +15,9 @@ def main() -> None:
     This programm set timer to wakeup system from suspend and opens
     a browser and website with news.
     """
-    os.system(
-        f"sudo rtcwake -u --date {get_time_wakeup(STANDART_TIME_WAKEUP)}"
-    ) 
-    os.system("sudo systemctl suspend")  # Temporary line -----
+    os.system( f"sudo rtcwake -u --date {get_time_wakeup(TIME_WAKEUP)}") 
+    if int(input("Suspend? 1 - yes, 0 - no :")):
+        os.system("sudo systemctl suspend")
     time.sleep(5)
     while True:
         if check_internet():
@@ -29,7 +27,7 @@ def main() -> None:
             driver.maximize_window()
             time.sleep(2)
             full_screen_on(driver)
-            time.sleep(25)
+            time.sleep(20)
             site_sound_on(driver)
             os.system("pactl set-sink-volume @DEFAULT_SINK@ 50%")
             time.sleep(600)
@@ -71,7 +69,7 @@ def site_sound_on(driver: object) -> None:
     volume_btn.click()
 
 
-def get_time_wakeup(STANDART_TIME_WAKEUP) -> str:
+def get_time_wakeup(TIME_WAKEUP) -> str:
     while True:
         time = input( "Enter time hh:mm : ").strip()
         length = len(time)
@@ -85,7 +83,7 @@ def get_time_wakeup(STANDART_TIME_WAKEUP) -> str:
             else:
                 continue
         elif length == 0:
-            time_wakeup = STANDART_TIME_WAKEUP
+            time_wakeup = TIME_WAKEUP
             break
     return time_wakeup
 
