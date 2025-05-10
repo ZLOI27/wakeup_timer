@@ -3,6 +3,7 @@
 import socket
 import os
 import time
+import sys
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -18,8 +19,12 @@ def main() -> None:
     a browser and website with news.
     """
     os.system(f"sudo rtcwake -u --date {get_time_wakeup(TIME_WAKEUP)}")
-    if int(input("Suspend? 1 - yes, 0 - no :")):
-        os.system("sudo systemctl suspend")
+    try:
+        if int(input("Suspend? 1 - yes, 0 - no :")):
+            os.system("sudo systemctl suspend")
+    except EOFError:
+        print("Input interrupted. EXIT.")
+        sys.exit()
     time.sleep(5)
     while True:
         if check_internet():
@@ -79,26 +84,30 @@ def get_time_wakeup(TIME_WAKEUP) -> str:
     h*mm (* is any character) and processes it. If no time is entered,
     then the standard time is taken from the constant.
     """
-    while True:
-        time = input("Enter time hh:mm : ").strip()
-        length = len(time)
-        time_wakeup = ""
-        if 4 <= length <= 5:
-            if (
-                (not time[-3].isdigit())
-                and time[:-3].isdigit()
-                and time[-2:].isdigit()
-                and (00 <= int(time[-2:]) <= 59)
-                and (00 <= int(time[:-3]) <= 23)
-            ):
-                time_wakeup = time[:-3] + ":" + time[-2:]
+    try:
+        while True:
+            time = input("Enter time hh:mm : ").strip()
+            length = len(time)
+            time_wakeup = ""
+            if 4 <= length <= 5:
+                if (
+                    (not time[-3].isdigit())
+                    and time[:-3].isdigit()
+                    and time[-2:].isdigit()
+                    and (00 <= int(time[-2:]) <= 59)
+                    and (00 <= int(time[:-3]) <= 23)
+                ):
+                    time_wakeup = time[:-3] + ":" + time[-2:]
+                    break
+                else:
+                    continue
+            elif length == 0:
+                time_wakeup = TIME_WAKEUP
                 break
-            else:
-                continue
-        elif length == 0:
-            time_wakeup = TIME_WAKEUP
-            break
-    return time_wakeup
+        return time_wakeup
+    except EOFError:
+        print("Input interrupted. EXIT.")
+        sys.exit()
 
 
 if __name__ == "__main__":
