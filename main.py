@@ -22,10 +22,10 @@ def main() -> None:
     """
     time_wakeup = get_time_wakeup(TIME_WAKEUP)
     date_wakeup = get_date_wakeup(time_wakeup)
-    date_str = f'{date_wakeup[]}-{date_wakeup[]}-{date_wakeup[]}'
+    date_str = f'{date_wakeup[0]}-{date_wakeup[1]}-{date_wakeup[2]}'
     time_str = f'{time_wakeup[0]}:{time_wakeup[1]}'
     date_time_wakeup = f'{date_str} {time_str}'  # get_date_time_rtc(time, date)
-    os.system(f"sudo rtcwake -u --date {date_time_wakeup}")
+    os.system(f"sudo rtcwake -u --date '{date_time_wakeup}'")
     os.system(f"sudo rtcwake -l -m show")
     if ask_suspend():
         time.sleep(3)
@@ -139,7 +139,7 @@ def get_date_wakeup(time_wakeup: tuple) -> tuple:
                 print("Incorrect input, please try again...")
                 continue
             if is_valid_date(today.year, int(month), int(day)):
-                return (today.year, int(day), int(month))
+                return (today.year, int(month), int(day))
             else:
                 print("Incorrect input, please try again...")
                 continue
@@ -163,11 +163,11 @@ def today_or_tomorrow(time_wakeup: tuple) -> tuple:
     """
     now = datetime.datetime.today()
     if time_wakeup[0] == now.hour and time_wakeup[1] > now.minute or time_wakeup[0] > now.hour:
-        return (now.year, now.day, now.month)
+        return (now.year, now.month, now.day)
     else:
         delta = datetime.timedelta(days=1)
         tomorrow = now + delta
-        return (tomorrow.year, tomorrow.day, tomorrow.month)
+        return (tomorrow.year, tomorrow.month, tomorrow.day)
 
 
 def ask_suspend() -> bool:
