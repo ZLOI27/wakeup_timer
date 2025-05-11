@@ -4,13 +4,15 @@ import socket
 import os
 import time
 import sys
+import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 
 WEBSITE = "https://www.rbc.ru"
-TIME_OF_NEWS = 20  # Seconds
-TIME_WAKEUP = "05:30"
+TIME_OF_NEWS = 200  # Seconds
+TON_BEFORE_RISE_VOL = 600 # Time of news before rise volume(seconds)
+TIME_WAKEUP = (5, 30)
 
 
 def main() -> None:
@@ -18,9 +20,12 @@ def main() -> None:
     This programm set timer to wakeup system from suspend and opens
     a browser and website with news.
     """
-    os.system(f"sudo rtcwake -u --date {get_time_wakeup(TIME_WAKEUP)}")
+    time_wakeup = get_time_wakeup(TIME_WAKEUP)
+    date_wakeup = get_date_wakeup(time)
+    date_time_wakeup = f'{time_wakeup[0]}:{time_wakeup[1]}' # get_date_time_rtc(time, date)
+    os.system(f"sudo rtcwake -u --date {date_time_wakeup}")
     try:
-        if int(input("Suspend? 1 - yes, 0 - no :")):
+        if int(input("Suspend? 1 - yes, 0 - no : ")):
             os.system("sudo systemctl suspend")
     except EOFError:
         print("Input interrupted. EXIT.")
@@ -37,7 +42,7 @@ def main() -> None:
             time.sleep(20)
             site_sound_on(driver)
             os.system("pactl set-sink-volume @DEFAULT_SINK@ 50%")
-            time.sleep(600)
+            time.sleep(TON_BEFORE_RISE_VOL)
             os.system("pactl set-sink-volume @DEFAULT_SINK@ 75%")
             time.sleep(TIME_OF_NEWS)
             driver.quit()
@@ -78,36 +83,61 @@ def site_sound_on(driver: object) -> None:
     volume_btn.click()
 
 
-def get_time_wakeup(TIME_WAKEUP) -> str:
+def get_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
     """
     This function asks you to enter the time in the format hh*mm or
-    h*mm (* is any character) and processes it. If no time is entered,
-    then the standard time is taken from the constant.
+    h*mm (* is any character, not digit) and processes it. If no time
+    is entered, then the standart time is taken from the constant.
     """
+    hours = ''
+    minutes = ''
     try:
         while True:
-            time = input("Enter time hh:mm : ").strip()
-            length = len(time)
-            time_wakeup = ""
-            if 4 <= length <= 5:
-                if (
-                    (not time[-3].isdigit())
-                    and time[:-3].isdigit()
-                    and time[-2:].isdigit()
-                    and (00 <= int(time[-2:]) <= 59)
-                    and (00 <= int(time[:-3]) <= 23)
-                ):
-                    time_wakeup = time[:-3] + ":" + time[-2:]
-                    break
+            time_str = input("Enter time hh:mm : ").strip()
+            if len(time_str) == 0:
+                return TIME_WAKEUP
+            for char in time_str:
+                if char.isdigit():
+                    minutes += char
                 else:
-                    continue
-            elif length == 0:
-                time_wakeup = TIME_WAKEUP
-                break
-        return time_wakeup
+                    hours = minutes
+                    minutes = ''
+            return (int(hours), int(minutes))
     except EOFError:
         print("Input interrupted. EXIT.")
         sys.exit()
+
+
+def get_date_wakeup(time: tuple) -> tuple:
+    """
+    This function asks you to enter the date in the format dd*mm or
+    d*m (* is any character, not digit) and processes it. If no date
+    is entered, then the timer is set for today or tomorrow.
+    """
+    day = ''
+    month = ''
+    try:
+        while True:
+            date_str = input("Enter date dd:mm : ").strip()
+            if len(date_str) == 0:
+                return today_or_tomorrow(time)
+            for char in date_str:
+                if char.isdigit():
+                    month += char
+                else:
+                    day = month
+                    month = ''
+            return (int(day), int(month))
+    except EOFError:
+        print("Input interrupted. EXIT.")
+        sys.exit()
+
+def today_or_tomorrow(time: tuple) -> tuple:
+    """
+    This function checks the entered time, if entered time can't be set
+    today, then will be returned date of tomorrow, else date of today.
+    """
+    pass
 
 
 if __name__ == "__main__":
