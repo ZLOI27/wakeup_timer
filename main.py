@@ -25,7 +25,7 @@ def main() -> None:
     date_time_wakeup = f'{time_wakeup[0]}:{time_wakeup[1]}'  # get_date_time_rtc(time, date)
     if ask_suspend():
         os.system("sudo systemctl suspend")
-    os.system(f"sudo rtcwake -l -m show --date {date_time_wakeup}")
+    os.system(f"sudo rtcwake -u -m show --date {date_time_wakeup}")
     time.sleep(5)
     while True:
         if check_internet():
@@ -146,7 +146,7 @@ def get_date_wakeup(time_wakeup: tuple) -> tuple:
 
 def is_valid_date(year, month, day) -> bool:
     try:
-        datetime(year, month, day)
+        datetime.datetime(year, month, day)
         return True
     except ValueError:
         return False
