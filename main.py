@@ -23,9 +23,9 @@ def main() -> None:
     time_wakeup = get_time_wakeup(TIME_WAKEUP)
     date_wakeup = get_date_wakeup(time_wakeup)
     date_time_wakeup = f'{time_wakeup[0]}:{time_wakeup[1]}'  # get_date_time_rtc(time, date)
-    os.system(f"sudo rtcwake -u --date {date_time_wakeup}")
     if ask_suspend():
         os.system("sudo systemctl suspend")
+    os.system(f"sudo rtcwake -l -m show --date {date_time_wakeup}")
     time.sleep(5)
     while True:
         if check_internet():
