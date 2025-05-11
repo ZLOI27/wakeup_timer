@@ -98,7 +98,14 @@ def get_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
                 else:
                     hours = minutes
                     minutes = ''
-            return (int(hours), int(minutes))
+            if hours == '' or minutes == '':
+                print("Incorrect input, please try again...")
+                continue
+            if 0 <= int(hours) <= 23 and 0 <= int(minutes) <= 59:
+                return (int(hours), int(minutes))
+            else:
+                print("Incorrect input, please try again...")
+                continue
     except EOFError:
         print("Input interrupted. EXIT.")
         sys.exit()
@@ -123,7 +130,14 @@ def get_date_wakeup(time_wakeup: tuple) -> tuple:
                 else:
                     day = month
                     month = ''
-            return (int(day), int(month))
+            if day == '' or month == '':
+                print("Incorrect input, please try again...")
+                continue
+            if 1 <= int(day) <= 31 and 1 <= int(month) <= 12:
+                return (int(day), int(month))
+            else:
+                print("Incorrect input, please try again...")
+                continue
     except EOFError:
         print("Input interrupted. EXIT.")
         sys.exit()
