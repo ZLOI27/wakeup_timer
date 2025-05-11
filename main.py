@@ -11,7 +11,7 @@ from selenium.webdriver.common.by import By
 
 WEBSITE = "https://www.rbc.ru"
 TIME_OF_NEWS = 200  # Seconds
-TON_BEFORE_RISE_VOL = 600 # Time of news before rise volume(seconds)
+TON_BEFORE_RISE_VOL = 600  # Time of news before rise volume(seconds)
 TIME_WAKEUP = (5, 30)
 
 
@@ -21,8 +21,8 @@ def main() -> None:
     a browser and website with news.
     """
     time_wakeup = get_time_wakeup(TIME_WAKEUP)
-    date_wakeup = get_date_wakeup(time)
-    date_time_wakeup = f'{time_wakeup[0]}:{time_wakeup[1]}' # get_date_time_rtc(time, date)
+    date_wakeup = get_date_wakeup(time_wakeup)
+    date_time_wakeup = f'{time_wakeup[0]}:{time_wakeup[1]}'  # get_date_time_rtc(time, date)
     os.system(f"sudo rtcwake -u --date {date_time_wakeup}")
     if ask_suspend():
         os.system("sudo systemctl suspend")
@@ -104,7 +104,7 @@ def get_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
         sys.exit()
 
 
-def get_date_wakeup(time: tuple) -> tuple:
+def get_date_wakeup(time_wakeup: tuple) -> tuple:
     """
     This function asks you to enter the date in the format dd*mm or
     d*m (* is any character, not digit) and processes it. If no date
@@ -116,7 +116,7 @@ def get_date_wakeup(time: tuple) -> tuple:
         while True:
             date_str = input("Enter date dd:mm : ").strip()
             if len(date_str) == 0:
-                return today_or_tomorrow(time)
+                return today_or_tomorrow(time_wakeup)
             for char in date_str:
                 if char.isdigit():
                     month += char
@@ -128,12 +128,19 @@ def get_date_wakeup(time: tuple) -> tuple:
         print("Input interrupted. EXIT.")
         sys.exit()
 
-def today_or_tomorrow(time: tuple) -> tuple:
+
+def today_or_tomorrow(time_wakeup: tuple) -> tuple:
     """
     This function checks the entered time, if entered time can't be set
     today, then will be returned date of tomorrow, else date of today.
     """
-    pass
+    now = datetime.datetime.today()
+    if time_wakeup[0] == now.hour and time_wakeup[1] > now.minute or time_wakeup[0] > now.hour:
+        return (now.day, now.month)
+    else:
+        delta = datetime.timedelta(days=1)
+        tomorrow = now + delta
+        return (tomorrow.day, tomorrow.month)
 
 
 def ask_suspend() -> bool:
