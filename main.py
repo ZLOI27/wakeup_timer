@@ -117,6 +117,7 @@ def get_date_wakeup(time_wakeup: tuple) -> tuple:
     d*m (* is any character, not digit) and processes it. If no date
     is entered, then the timer is set for today or tomorrow.
     """
+    today = datetime.datetime.today()
     day = ''
     month = ''
     try:
@@ -133,14 +134,22 @@ def get_date_wakeup(time_wakeup: tuple) -> tuple:
             if day == '' or month == '':
                 print("Incorrect input, please try again...")
                 continue
-            if 1 <= int(day) <= 31 and 1 <= int(month) <= 12:
-                return (int(day), int(month))
+            if is_valid_date(today.year, int(month), int(day)):
+                return (today.year, int(day), int(month))
             else:
                 print("Incorrect input, please try again...")
                 continue
     except EOFError:
         print("Input interrupted. EXIT.")
         sys.exit()
+
+
+def is_valid_date(year, month, day) -> bool:
+    try:
+        datetime(year, month, day)
+        return True
+    except ValueError:
+        return False
 
 
 def today_or_tomorrow(time_wakeup: tuple) -> tuple:
@@ -150,11 +159,11 @@ def today_or_tomorrow(time_wakeup: tuple) -> tuple:
     """
     now = datetime.datetime.today()
     if time_wakeup[0] == now.hour and time_wakeup[1] > now.minute or time_wakeup[0] > now.hour:
-        return (now.day, now.month)
+        return (now.year, now.day, now.month)
     else:
         delta = datetime.timedelta(days=1)
         tomorrow = now + delta
-        return (tomorrow.day, tomorrow.month)
+        return (tomorrow.year, tomorrow.day, tomorrow.month)
 
 
 def ask_suspend() -> bool:
