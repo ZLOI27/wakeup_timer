@@ -144,6 +144,10 @@ def today_or_tomorrow(time_wakeup: tuple) -> tuple:
 
 
 def ask_suspend() -> bool:
+    """
+    This function asks the user, if standby mode is required now. Any
+    word or character means standby required, empty input means don't.
+    """
     try:
         return bool(input("Suspend? 1 - yes, '' - no : "))
     except EOFError:
