@@ -24,12 +24,8 @@ def main() -> None:
     date_wakeup = get_date_wakeup(time)
     date_time_wakeup = f'{time_wakeup[0]}:{time_wakeup[1]}' # get_date_time_rtc(time, date)
     os.system(f"sudo rtcwake -u --date {date_time_wakeup}")
-    try:
-        if int(input("Suspend? 1 - yes, 0 - no : ")):
-            os.system("sudo systemctl suspend")
-    except EOFError:
-        print("Input interrupted. EXIT.")
-        sys.exit()
+    if ask_suspend():
+        os.system("sudo systemctl suspend")
     time.sleep(5)
     while True:
         if check_internet():
@@ -38,7 +34,7 @@ def main() -> None:
             driver.get(WEBSITE)
             driver.maximize_window()
             time.sleep(2)
-            full_screen_on(driver)
+            fullscreen_on(driver)
             time.sleep(20)
             site_sound_on(driver)
             os.system("pactl set-sink-volume @DEFAULT_SINK@ 50%")
@@ -63,16 +59,16 @@ def check_internet(host="8.8.8.8", port=53, timeout=3) -> bool:
         return False
 
 
-def full_screen_on(driver: object) -> None:
+def fullscreen_on(driver: object) -> None:
     """Fullscreen videostream on the website."""
-    full_screen_btn = driver.find_element(
+    fullscreen_btn = driver.find_element(
         By.CLASS_NAME, "video-player__controls__fullscreen"
     )
-    full_screen_btn.click()
-    full_screen_btn = driver.find_element(
+    fullscreen_btn.click()
+    fullscreen_btn = driver.find_element(
         By.CLASS_NAME, "video-player__controls__fullscreen"
     )
-    full_screen_btn.click()
+    fullscreen_btn.click()
 
 
 def site_sound_on(driver: object) -> None:
@@ -138,6 +134,14 @@ def today_or_tomorrow(time: tuple) -> tuple:
     today, then will be returned date of tomorrow, else date of today.
     """
     pass
+
+
+def ask_suspend() -> bool:
+    try:
+        return bool(input("Suspend? 1 - yes, '' - no : "))
+    except EOFError:
+        print("Input interrupted. EXIT.")
+        sys.exit()
 
 
 if __name__ == "__main__":
