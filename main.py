@@ -24,12 +24,18 @@ def main() -> None:
     date_wakeup = get_date_wakeup(time_wakeup)
     date_str = f'{date_wakeup[0]}-{date_wakeup[1]}-{date_wakeup[2]}'
     time_str = f'{time_wakeup[0]}:{time_wakeup[1]}'
-    date_time_wakeup = f'{date_str} {time_str}'  # get_date_time_rtc(time, date)
+    date_time_wakeup = f'{date_str} {time_str}'
     os.system(f"sudo rtcwake -u --date '{date_time_wakeup}'")
     os.system(f"sudo rtcwake -l -m show")
     if ask_suspend():
         time.sleep(3)
         os.system("sudo systemctl suspend")
+    while True:
+        now = datetime.datetime.today()
+        if (now.hour, now.minute) == time_wakeup:
+            break
+        else:
+            time.sleep(5)
     time.sleep(5)
     while True:
         if check_internet():
