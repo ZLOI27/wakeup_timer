@@ -83,10 +83,15 @@ def fullscreen_on(driver: object) -> None:
 
 def site_sound_on(driver: object) -> None:
     """Turn on the sound on the website."""
-    volume_btn = driver.find_element(
-            By.CLASS_NAME, "video-player__controls__volume"
-    )
-    volume_btn.click()
+    for i in range(10):
+        try:
+            volume_btn = driver.find_element(
+                    By.CLASS_NAME, "video-player__controls__volume"
+            )
+            volume_btn.click()
+            break
+        except Exception:
+            print('Невозможно включить звук...')
 
 
 def get_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
