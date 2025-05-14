@@ -71,14 +71,20 @@ def check_internet(host="8.8.8.8", port=53, timeout=3) -> bool:
 
 def fullscreen_on(driver: object) -> None:
     """Fullscreen videostream on the website."""
-    fullscreen_btn = driver.find_element(
-        By.CLASS_NAME, "video-player__controls__fullscreen"
-    )
-    fullscreen_btn.click()
-    fullscreen_btn = driver.find_element(
-        By.CLASS_NAME, "video-player__controls__fullscreen"
-    )
-    fullscreen_btn.click()
+    for i in range(10):
+        try:
+            fullscreen_btn = driver.find_element(
+                By.CLASS_NAME, "video-player__controls__fullscreen"
+            )
+            fullscreen_btn.click()
+            fullscreen_btn = driver.find_element(
+                By.CLASS_NAME, "video-player__controls__fullscreen"
+            )
+            fullscreen_btn.click()
+            break
+        except Exception:
+            print('Невозможно открыть на полный экран...')
+            time.sleep(5)
 
 
 def site_sound_on(driver: object) -> None:
@@ -92,6 +98,7 @@ def site_sound_on(driver: object) -> None:
             break
         except Exception:
             print('Невозможно включить звук...')
+            time.sleep(2)
 
 
 def get_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
