@@ -4,6 +4,7 @@ import socket
 import os
 import time
 import sys
+import json
 import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -183,7 +184,8 @@ def today_or_tomorrow(time_wakeup: tuple) -> tuple:
     today, then will be returned date of tomorrow, else date of today.
     """
     now = datetime.datetime.today()
-    if time_wakeup[0] == now.hour and time_wakeup[1] > now.minute or time_wakeup[0] > now.hour:
+    tw = time_wakeup
+    if tw[0] == now.hour and tw[1] > now.minute or tw[0] > now.hour:
         return (now.year, now.month, now.day)
     else:
         delta = datetime.timedelta(days=1)
@@ -201,6 +203,17 @@ def ask_suspend() -> bool:
     except EOFError:
         print("Input interrupted. EXIT.")
         sys.exit()
+
+
+def get_config_from_file() -> tuple:
+    """This function open config file and read time, date."""
+    path = '/home/zk/Рабочий стол/config_wakeup_timer.json'
+    try:
+        with open(path, mode='r', encoding='utf-8',) as file:
+            return file.read()  # (json.load(file)['hour'], json.load(file)['minute'])
+    except OSError:
+        print('Проблемы с конфигурационным файлом.')
+        exit
 
 
 if __name__ == "__main__":
