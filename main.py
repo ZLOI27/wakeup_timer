@@ -10,8 +10,8 @@ from selenium.webdriver.common.by import By
 
 
 WEBSITE = "https://www.rbc.ru"
-TIME_OF_NEWS = 200  # Seconds
-TON_BEFORE_RISE_VOL = 600  # Time of news before rise volume(seconds)
+TIME_OF_NEWS = 3000  # Seconds
+TON_BEFORE_RISE_VOL = 300  # Time of news before rise volume(seconds)
 TIME_WAKEUP = (5, 30)
 
 
@@ -45,11 +45,13 @@ def main() -> None:
             driver.maximize_window()
             time.sleep(2)
             fullscreen_on(driver)
-            time.sleep(20)
+            time.sleep(12)
             site_sound_on(driver)
             os.system("pactl set-sink-volume @DEFAULT_SINK@ 50%")
             time.sleep(TON_BEFORE_RISE_VOL)
             os.system("pactl set-sink-volume @DEFAULT_SINK@ 75%")
+            time.sleep(TON_BEFORE_RISE_VOL)
+            os.system("pactl set-sink-volume @DEFAULT_SINK@ 100%")
             time.sleep(TIME_OF_NEWS)
             driver.quit()
             os.system("systemctl suspend")
@@ -98,7 +100,7 @@ def site_sound_on(driver: object) -> None:
             break
         except Exception:
             print('Невозможно включить звук...')
-            time.sleep(2)
+            time.sleep(3)
 
 
 def get_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
@@ -167,6 +169,7 @@ def get_date_wakeup(time_wakeup: tuple) -> tuple:
 
 
 def is_valid_date(year, month, day) -> bool:
+    """"Just checking for existence of a date."""
     try:
         datetime.datetime(year, month, day)
         return True
