@@ -21,14 +21,21 @@ def main() -> None:
     This programm set timer to wakeup system from suspend and opens
     a browser and website with news.
     """
-    time_wakeup = get_time_wakeup(TIME_WAKEUP)
-    date_wakeup = get_date_wakeup(time_wakeup)
+    suspend = None
+    config = get_config_from_file()
+    if len(sys.argv) > 1 and sys.argv[1] == 's':
+        time_wakeup = (config[0], config[1])
+        suspend = bool(config[2])
+    else:
+        time_wakeup = get_time_wakeup(TIME_WAKEUP)
+        date_wakeup = get_date_wakeup(time_wakeup)
+    date_wakeup = today_or_tomorrow(time_wakeup)
     date_str = f'{date_wakeup[0]}-{date_wakeup[1]}-{date_wakeup[2]}'
     time_str = f'{time_wakeup[0]}:{time_wakeup[1]}'
     date_time_wakeup = f'{date_str} {time_str}'
     os.system(f"sudo rtcwake -u --date '{date_time_wakeup}'")
     os.system(f"sudo rtcwake -l -m show")
-    if ask_suspend():
+    if suspend == None and ask_suspend() or suspend:
         time.sleep(3)
         os.system("sudo systemctl suspend")
     while True:
@@ -210,7 +217,8 @@ def get_config_from_file() -> tuple:
     path = '/home/zk/Рабочий стол/config_wakeup_timer.json'
     try:
         with open(path, mode='r', encoding='utf-8',) as file:
-            return file.read()  # (json.load(file)['hour'], json.load(file)['minute'])
+            data_dict = json.load(file)
+            return (data_dict['hour'], data_dict['minute'], data_dict['suspend'])
     except OSError:
         print('Проблемы с конфигурационным файлом.')
         exit
