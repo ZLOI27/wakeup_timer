@@ -51,7 +51,7 @@ def main() -> None:
             driver = webdriver.Firefox()
             driver.get(WEBSITE)
             driver.maximize_window()
-            time.sleep(2)
+            time.sleep(10)
             fullscreen_on(driver)
             time.sleep(12)
             site_sound_on(driver)
@@ -93,7 +93,7 @@ def fullscreen_on(driver: object) -> None:
             fullscreen_btn.click()
             break
         except Exception:
-            print('Невозможно открыть на полный экран...')
+            print("It is imposible to turned on fullscreen mode...")
             time.sleep(5)
 
 
@@ -105,10 +105,11 @@ def site_sound_on(driver: object) -> None:
                     By.CLASS_NAME, "video-player__controls__volume"
             )
             volume_btn.click()
+            print("The sound on the website is turned on")
             break
         except Exception:
-            print('Невозможно включить звук...')
-            time.sleep(3)
+            print("It is imposible turned on sound...")
+            time.sleep(5)
 
 
 def get_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
@@ -220,7 +221,7 @@ def get_config_from_file() -> tuple:
             data_dict = json.load(file)
             return (data_dict['hour'], data_dict['minute'], data_dict['suspend'])
     except OSError:
-        print('Проблемы с конфигурационным файлом.')
+        print("Problems with the config file.")
         exit
 
 
