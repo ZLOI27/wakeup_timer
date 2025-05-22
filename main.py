@@ -47,6 +47,7 @@ def main() -> None:
     time.sleep(5)
     while True:
         if check_internet():
+            print("\033[32mInternetconection is OK!\033[0m")
             os.system("pactl set-sink-volume @DEFAULT_SINK@ 20%")
             driver = webdriver.Firefox()
             driver.get(WEBSITE)
@@ -65,7 +66,7 @@ def main() -> None:
             os.system("systemctl suspend")
             break
         else:
-            print("Disable internet connection")
+            print("\033[31mDisable internet connection\033[0m")
             time.sleep(2)
 
 
@@ -91,9 +92,10 @@ def fullscreen_on(driver: object) -> None:
                 By.CLASS_NAME, "video-player__controls__fullscreen"
             )
             fullscreen_btn.click()
+            print("\033[32mFullscreen on. OK!\033[0m")
             break
         except Exception:
-            print("It is imposible to turned on fullscreen mode...")
+            print("\033[31mTry to turned on fullscreen mode...\033[0m")
             time.sleep(5)
 
 
@@ -105,10 +107,10 @@ def site_sound_on(driver: object) -> None:
                     By.CLASS_NAME, "video-player__controls__volume"
             )
             volume_btn.click()
-            print("The sound on the website is turned on")
+            print("\033[32mThe sound on the website is turned on. OK!\033[0m")
             break
         except Exception:
-            print("It is imposible turned on sound...")
+            print("\033[31mIt is imposible turned on sound...\033[0m")
             time.sleep(5)
 
 
@@ -137,10 +139,10 @@ def get_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
             if 0 <= int(hours) <= 23 and 0 <= int(minutes) <= 59:
                 return (int(hours), int(minutes))
             else:
-                print("Incorrect input, please try again...")
+                print("\033[31mIncorrect input, please try again...\033[0m")
                 continue
     except EOFError:
-        print("Input interrupted. EXIT.")
+        print("\033[31mInput interrupted. EXIT.\033[0m")
         sys.exit()
 
 
@@ -165,15 +167,15 @@ def get_date_wakeup(time_wakeup: tuple) -> tuple:
                     day = month
                     month = ''
             if day == '' or month == '':
-                print("Incorrect input, please try again...")
+                print("\033[31mIncorrect input, please try again...\033[0m")
                 continue
             if is_valid_date(today.year, int(month), int(day)):
                 return (today.year, int(month), int(day))
             else:
-                print("Incorrect input, please try again...")
+                print("\033[31mIncorrect input, please try again...\033[0m")
                 continue
     except EOFError:
-        print("Input interrupted. EXIT.")
+        print("\033[31mInput interrupted. EXIT.\033[0m")
         sys.exit()
 
 
@@ -209,7 +211,7 @@ def ask_suspend() -> bool:
     try:
         return bool(input("Suspend? 1 - yes, '' - no : "))
     except EOFError:
-        print("Input interrupted. EXIT.")
+        print("\033[31mInput interrupted. EXIT.\033[0m")
         sys.exit()
 
 
@@ -221,8 +223,8 @@ def get_config_from_file() -> tuple:
             data_dict = json.load(file)
             return (data_dict['hour'], data_dict['minute'], data_dict['suspend'])
     except OSError:
-        print("Problems with the config file.")
-        exit
+        print("\033[31mProblems with the config file.\033[0m")
+        sys.exit()
 
 
 if __name__ == "__main__":
