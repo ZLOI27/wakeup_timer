@@ -7,6 +7,7 @@ import sys
 import json
 import datetime
 from selenium import webdriver
+from selenium.webdriver.firefox.options import Options 
 from selenium.webdriver.common.by import By
 
 
@@ -47,12 +48,14 @@ def main() -> None:
     time.sleep(5)
     while True:
         if check_internet():
-            print("\033[32mInternetconection is OK!\033[0m")
+            print("\033[32mInternet conection is OK!\033[0m")
             os.system("pactl set-sink-volume @DEFAULT_SINK@ 20%")
-            driver = webdriver.Firefox()
+            options = Options()
+            options.page_load_strategy = 'none'
+            driver = webdriver.Firefox(options=options)
             driver.get(WEBSITE)
             driver.maximize_window()
-            time.sleep(10)
+            time.sleep(4)
             fullscreen_on(driver)
             time.sleep(12)
             site_sound_on(driver)
@@ -95,7 +98,7 @@ def fullscreen_on(driver: object) -> None:
             print("\033[32mFullscreen on. OK!\033[0m")
             break
         except Exception:
-            print("\033[31mTry to turned on fullscreen mode...\033[0m")
+            print("\033[33mTry to turned on fullscreen mode...\033[0m")
             time.sleep(5)
 
 
@@ -110,7 +113,7 @@ def site_sound_on(driver: object) -> None:
             print("\033[32mThe sound on the website is turned on. OK!\033[0m")
             break
         except Exception:
-            print("\033[31mIt is imposible turned on sound...\033[0m")
+            print("\033[33mIt is imposible turned on sound...\033[0m")
             time.sleep(5)
 
 
@@ -217,7 +220,7 @@ def ask_suspend() -> bool:
 
 def get_config_from_file() -> tuple:
     """This function open config file and read time, date."""
-    path = '/home/zk/Рабочий стол/config_wakeup_timer.json'
+    path = '/home/zk/Desktop/config_wakeup_timer.json'
     try:
         with open(path, mode='r', encoding='utf-8',) as file:
             data_dict = json.load(file)
