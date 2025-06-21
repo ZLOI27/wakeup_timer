@@ -45,7 +45,7 @@ def main() -> None:
             break
         else:
             time.sleep(5)
-    time.sleep(5)
+    time.sleep(6)
     while True:
         if check_internet():
             print("\033[32mInternet conection is OK!\033[0m")
