@@ -21,7 +21,11 @@ def main() -> None:
     This programm set timer to wakeup system from suspend and open videostream.
     """
     suspend = None
-    config = get_config_from_file()
+    try: 
+        config = get_config_from_file()
+    except OSError as error:
+        print("\033[31mProblems with config file, see log.txt.\033[0m")
+        # write_log(str(error)) FIXME: need write func write errors and something else in log.txt
 
     if len(sys.argv) > 1 and sys.argv[1] == 's':
         time_wakeup = (config[0], config[1])
@@ -188,6 +192,10 @@ def get_config_from_file() -> tuple:
     except OSError:
         print("\033[31mProblems with the config file.\033[0m")
         sys.exit()
+
+
+def write_log(message: str) -> bool:
+    pass
 
 
 if __name__ == "__main__":
