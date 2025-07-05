@@ -3,3 +3,4 @@ __pycache__/
 pest.py
 venv
 pyrightconfig.json
+wakeup_timer.code-workspace

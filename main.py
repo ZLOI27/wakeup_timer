@@ -6,66 +6,60 @@ import time
 import sys
 import json
 import datetime
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options 
-from selenium.webdriver.common.by import By
 
 
-WEBSITE = "https://www.rbc.ru"
+STREAM = "http://online.video.rbc.ru/online/rbctv_1080p/index.m3u8"
+VIDEOPLAYER = "mpv"
+OPTION = "--fullscreen=yes"
 TIME_OF_NEWS = 3000  # Seconds
-TON_BEFORE_RISE_VOL = 300  # Time of news before rise volume(seconds)
+TON_BEFORE_RISE_VOL = 150  # Time of news before rise volume(seconds)
 TIME_WAKEUP = (5, 30)
 
 
 def main() -> None:
     """
-    This programm set timer to wakeup system from suspend and opens
-    a browser and website with news.
+    This programm set timer to wakeup system from suspend and open videostream.
     """
     suspend = None
     config = get_config_from_file()
+
     if len(sys.argv) > 1 and sys.argv[1] == 's':
         time_wakeup = (config[0], config[1])
         suspend = bool(config[2])
     else:
-        time_wakeup = get_time_wakeup(TIME_WAKEUP)
-        date_wakeup = get_date_wakeup(time_wakeup)
+        time_wakeup = ask_time_wakeup(TIME_WAKEUP)
+        date_wakeup = ask_date_wakeup(time_wakeup)
+
     date_wakeup = today_or_tomorrow(time_wakeup)
     date_str = f'{date_wakeup[0]}-{date_wakeup[1]}-{date_wakeup[2]}'
     time_str = f'{time_wakeup[0]}:{time_wakeup[1]}'
     date_time_wakeup = f'{date_str} {time_str}'
     os.system(f"sudo rtcwake -u --date '{date_time_wakeup}'")
     os.system(f"sudo rtcwake -l -m show")
+
     if suspend == None and ask_suspend() or suspend:
         time.sleep(3)
         os.system("sudo systemctl suspend")
+
     while True:
         now = datetime.datetime.today()
         if (now.hour, now.minute) == time_wakeup:
             break
         else:
             time.sleep(5)
-    time.sleep(5)
+
     while True:
         if check_internet():
             print("\033[32mInternet conection is OK!\033[0m")
+            os.system(f"{VIDEOPLAYER} {OPTION} {STREAM} &")
             os.system("pactl set-sink-volume @DEFAULT_SINK@ 20%")
-            options = Options()
-            options.page_load_strategy = 'none'
-            driver = webdriver.Firefox(options=options)
-            driver.get(WEBSITE)
-            driver.maximize_window()
-            time.sleep(4)
-            fullscreen_on(driver)
-            time.sleep(12)
-            site_sound_on(driver)
-            os.system("pactl set-sink-volume @DEFAULT_SINK@ 50%")
             time.sleep(TON_BEFORE_RISE_VOL)
-            os.system("pactl set-sink-volume @DEFAULT_SINK@ 75%")
+            os.system("pactl set-sink-volume @DEFAULT_SINK@ 40%")
             time.sleep(TON_BEFORE_RISE_VOL)
-            os.system("pactl set-sink-volume @DEFAULT_SINK@ 100%")
+            os.system("pactl set-sink-volume @DEFAULT_SINK@ 60%")
+            time.sleep(TON_BEFORE_RISE_VOL)
+            os.system("pactl set-sink-volume @DEFAULT_SINK@ 80%")
             time.sleep(TIME_OF_NEWS)
-            driver.quit()
             os.system("systemctl suspend")
             break
         else:
@@ -83,41 +77,7 @@ def check_internet(host="8.8.8.8", port=53, timeout=3) -> bool:
         return False
 
 
-def fullscreen_on(driver: object) -> None:
-    """Fullscreen videostream on the website."""
-    for i in range(10):
-        try:
-            fullscreen_btn = driver.find_element(
-                By.CLASS_NAME, "video-player__controls__fullscreen"
-            )
-            fullscreen_btn.click()
-            fullscreen_btn = driver.find_element(
-                By.CLASS_NAME, "video-player__controls__fullscreen"
-            )
-            fullscreen_btn.click()
-            print("\033[32mFullscreen on. OK!\033[0m")
-            break
-        except Exception:
-            print("\033[33mTry to turned on fullscreen mode...\033[0m")
-            time.sleep(5)
-
-
-def site_sound_on(driver: object) -> None:
-    """Turn on the sound on the website."""
-    for i in range(10):
-        try:
-            volume_btn = driver.find_element(
-                    By.CLASS_NAME, "video-player__controls__volume"
-            )
-            volume_btn.click()
-            print("\033[32mThe sound on the website is turned on. OK!\033[0m")
-            break
-        except Exception:
-            print("\033[33mIt is imposible turned on sound...\033[0m")
-            time.sleep(5)
-
-
-def get_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
+def ask_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
     """
     This function asks you to enter the time in the format hh*mm or
     h*mm (* is any character, not digit) and processes it. If no time
@@ -149,7 +109,7 @@ def get_time_wakeup(TIME_WAKEUP: tuple) -> tuple:
         sys.exit()
 
 
-def get_date_wakeup(time_wakeup: tuple) -> tuple:
+def ask_date_wakeup(time_wakeup: tuple) -> tuple:
     """
     This function asks you to enter the date in the format dd*mm or
     d*m (* is any character, not digit) and processes it. If no date
@@ -219,8 +179,8 @@ def ask_suspend() -> bool:
 
 
 def get_config_from_file() -> tuple:
-    """This function open config file and read time, date."""
-    path = '/home/zk/Desktop/config_wakeup_timer.json'
+    """This function open config file and read time."""
+    path = '/home/zk/Desktop/config_wakeup_timer.json' # FIXME path ~/Desktop/...
     try:
         with open(path, mode='r', encoding='utf-8',) as file:
             data_dict = json.load(file)
