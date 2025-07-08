@@ -191,11 +191,19 @@ def get_config_from_file() -> tuple:
             return (data_dict['hour'], data_dict['minute'], data_dict['suspend'])
     except OSError:
         print("\033[31mProblems with the config file.\033[0m")
-        sys.exit()
+        return False
+        sys.exit() # FIXME: if have problem, need to create new file 
 
 
-def write_log(message: str) -> bool:
-    pass
+def write_log(message: str, path='/home/zk/Desktop/log.txt') -> bool:
+    """This function write errors in log.txt""" # FIXME path ~/Desktop/...
+    try:
+        with open(path, mode='a', encoding='utf-8') as file_log:
+            file_log.write(message)
+        return True
+    except OSError:
+        print("\033[31mProblems with the log file.\033[0m")
+        return False
 
 
 if __name__ == "__main__":
