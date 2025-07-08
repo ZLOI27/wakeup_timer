@@ -197,7 +197,7 @@ def write_log(message: str, path='/home/zk/Desktop/log.txt') -> bool:
     """This function write errors in log.txt""" # FIXME path ~/Desktop/...
     try:
         with open(path, mode='a', encoding='utf-8') as file_log:
-            file_log.write(message)
+            file_log.write('\n' + message)
         return True
     except OSError:
         print("\033[31mProblems with the log file.\033[0m")
