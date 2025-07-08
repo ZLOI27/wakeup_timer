@@ -21,11 +21,7 @@ def main() -> None:
     This programm set timer to wakeup system from suspend and open videostream.
     """
     suspend = None
-    try: 
-        config = get_config_from_file()
-    except OSError as error:
-        print("\033[31mProblems with config file, see log.txt.\033[0m")
-        # write_log(str(error)) FIXME: need write func write errors and something else in log.txt
+    config = get_config_from_file()
 
     if len(sys.argv) > 1 and sys.argv[1] == 's':
         time_wakeup = (config[0], config[1])
@@ -189,10 +185,12 @@ def get_config_from_file() -> tuple:
         with open(path, mode='r', encoding='utf-8',) as file:
             data_dict = json.load(file)
             return (data_dict['hour'], data_dict['minute'], data_dict['suspend'])
-    except OSError:
-        print("\033[31mProblems with the config file.\033[0m")
+    except OSError as error:
+        print("\033[31mProblems with the config file, see log.txt.\033[0m")
+        write_log(str(error))
+        # FIXME: if have problem, need to create new file 
         return False
-        sys.exit() # FIXME: if have problem, need to create new file 
+        
 
 
 def write_log(message: str, path='/home/zk/Desktop/log.txt') -> bool:
