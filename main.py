@@ -178,9 +178,8 @@ def ask_suspend() -> bool:
         sys.exit()
 
 
-def get_config_from_file() -> tuple:
+def get_config_from_file(path=os.path.expanduser('~/Desktop/config_wakeup_timer.json')) -> tuple:
     """This function open config file and read time."""
-    path = '/home/zk/Desktop/config_wakeup_timer.json' # FIXME path ~/Desktop/...
     try:
         with open(path, mode='r', encoding='utf-8',) as file:
             data_dict = json.load(file)
@@ -193,8 +192,8 @@ def get_config_from_file() -> tuple:
         
 
 
-def write_log(message: str, path='/home/zk/Desktop/log.txt') -> bool:
-    """This function write errors in log.txt""" # FIXME path ~/Desktop/...
+def write_log(message: str, path=os.path.expanduser('~/Desktop/log.txt')) -> bool:
+    """This function write errors in log.txt"""
     try:
         with open(path, mode='a', encoding='utf-8') as file_log:
             file_log.write('\n' + message)
