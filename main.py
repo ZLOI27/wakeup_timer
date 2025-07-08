@@ -52,7 +52,7 @@ def main() -> None:
         else:
             time.sleep(5)
 
-    while True:
+    for i in range(30):
         if check_internet():
             print("\033[32mInternet conection is OK!\033[0m")
             os.system(f"{VIDEOPLAYER} {OPTION} {STREAM} &")
@@ -67,7 +67,7 @@ def main() -> None:
             os.system("systemctl suspend")
             break
         else:
-            print("\033[31mDisable internet connection\033[0m")
+            print("\033[31mDisable internet connection, try again...\033[0m")
             time.sleep(2)
 
 
