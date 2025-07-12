@@ -196,7 +196,7 @@ def write_log(message: str, path=os.path.expanduser('~/Desktop/log.txt')) -> boo
     """This function write errors in log.txt"""
     try:
         with open(path, mode='a', encoding='utf-8') as file_log:
-            file_log.write('\n' + message)
+            file_log.write(f"\n{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: {message}")
         return True
     except OSError:
         print("\033[31mProblems with the log file.\033[0m")
