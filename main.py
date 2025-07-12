@@ -11,7 +11,7 @@ import datetime
 STREAM = "http://online.video.rbc.ru/online/rbctv_1080p/index.m3u8"
 VIDEOPLAYER = "mpv"
 OPTION = "--fullscreen=yes"
-TIME_OF_NEWS = 3000  # Seconds
+TIME_OF_NEWS = 3600  # Seconds
 TON_BEFORE_RISE_VOL = 150  # Time of news before rise volume(seconds)
 TIME_WAKEUP = (5, 30)
 
