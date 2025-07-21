@@ -203,5 +203,11 @@ def write_log(message: str, path=os.path.expanduser('~/Desktop/log.txt')) -> boo
         return False
 
 
+def rise_volume(time_delay=300, percents_vol=15, cycles=4) -> bool:
+    for i in range(cycles):
+       os.system("pactl set-sink-volume @DEFAULT_SINK@ percents_vol%")
+       time.sleep(time_delay) 
+
+
 if __name__ == "__main__":
     main()
