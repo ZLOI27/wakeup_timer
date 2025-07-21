@@ -6,6 +6,7 @@ import time
 import sys
 import json
 import datetime
+from default_configs import default_configs as dc # FIXME
 
 
 STREAM = "http://online.video.rbc.ru/online/rbctv_1080p/index.m3u8"
