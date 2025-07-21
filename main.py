@@ -6,18 +6,19 @@ import time
 import sys
 import json
 import datetime
+import asyncio
 from default_configs import default_configs as dc # FIXME
 
 
 STREAM = "http://online.video.rbc.ru/online/rbctv_1080p/index.m3u8"
 VIDEOPLAYER = "mpv"
 OPTION = "--fullscreen=yes"
-TIME_OF_NEWS = 3600  # Seconds
+TIME_OF_NEWS = 36  # Seconds
 TON_BEFORE_RISE_VOL = 150  # Time of news before rise volume(seconds)
 TIME_WAKEUP = (5, 30)
 
 
-def main() -> None:
+async def main() -> None:
     """
     This programm set timer to wakeup system from suspend and open videostream.
     """
@@ -53,14 +54,7 @@ def main() -> None:
         if check_internet():
             print("\033[32mInternet conection is OK!\033[0m")
             os.system(f"{VIDEOPLAYER} {OPTION} {STREAM} &")
-            os.system("pactl set-sink-volume @DEFAULT_SINK@ 20%")
-            time.sleep(TON_BEFORE_RISE_VOL)
-            os.system("pactl set-sink-volume @DEFAULT_SINK@ 40%")
-            time.sleep(TON_BEFORE_RISE_VOL)
-            os.system("pactl set-sink-volume @DEFAULT_SINK@ 60%")
-            time.sleep(TON_BEFORE_RISE_VOL)
-            os.system("pactl set-sink-volume @DEFAULT_SINK@ 80%")
-            time.sleep(TIME_OF_NEWS)
+            await asyncio.gather(control_volume(), asyncio.sleep(TIME_OF_NEWS))
             os.system("systemctl suspend")
             break
         else:
@@ -204,15 +198,17 @@ def write_log(message: str, path=os.path.expanduser('~/Desktop/log.txt')) -> boo
         return False
 
 
-def control_volume(init_vol=20, percents_vol=15, max_vol=100, time_delay=300, cycles=4) -> bool:
+async def control_volume(init_vol=20, percents_vol=15, max_vol=100, time_delay=3, cycles=4):
     """
     This function sleeps for the required number of seconds, increases 
     the volume, and repeats the process as many times as necessary.
     """
+    os.system(f"pactl set-sink-volume @DEFAULT_SINK@ {init_vol}%")
     for i in range(cycles):
-        time.sleep(time_delay) # FIXME async and max volume < 100
+        os.system(f"pactl get-sink-volume @DEFAULT_SINK@")
+        await asyncio.sleep(time_delay)
         os.system(f"pactl set-sink-volume @DEFAULT_SINK@ +{percents_vol}%")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
