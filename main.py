@@ -203,10 +203,14 @@ def write_log(message: str, path=os.path.expanduser('~/Desktop/log.txt')) -> boo
         return False
 
 
-def rise_volume(time_delay=300, percents_vol=15, cycles=4) -> bool:
+def control_volume(init_vol=20, percents_vol=15, max_vol=100, time_delay=300, cycles=4) -> bool:
+    """
+    This function sleeps for the required number of seconds, increases 
+    the volume, and repeats the process as many times as necessary.
+    """
     for i in range(cycles):
-       os.system("pactl set-sink-volume @DEFAULT_SINK@ percents_vol%")
-       time.sleep(time_delay) 
+        time.sleep(time_delay) # FIXME async and max volume < 100
+        os.system(f"pactl set-sink-volume @DEFAULT_SINK@ +{percents_vol}%")
 
 
 if __name__ == "__main__":
