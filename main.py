@@ -13,8 +13,7 @@ from default_configs import default_configs as dc # FIXME
 STREAM = "http://online.video.rbc.ru/online/rbctv_1080p/index.m3u8"
 VIDEOPLAYER = "mpv"
 OPTION = "--fullscreen=yes"
-TIME_OF_NEWS = 36  # Seconds
-TON_BEFORE_RISE_VOL = 150  # Time of news before rise volume(seconds)
+TIME_OF_NEWS = 3600  # Seconds
 TIME_WAKEUP = (5, 30)
 
 
@@ -60,6 +59,9 @@ async def main() -> None:
         else:
             print("\033[31mDisable internet connection, try again...\033[0m")
             time.sleep(2)
+    print('PC not connected to internet.')
+    write_log('PC not connected to internet.')
+    os.system("systemctl suspend") # FIXME: need add Exeption
 
 
 def check_internet(host="8.8.8.8", port=53, timeout=3) -> bool:
@@ -198,7 +200,7 @@ def write_log(message: str, path=os.path.expanduser('~/Desktop/log.txt')) -> boo
         return False
 
 
-async def control_volume(init_vol=20, percents_vol=15, max_vol=100, time_delay=3, cycles=4):
+async def control_volume(init_vol=20, percents_vol=15, max_vol=100, time_delay=300, cycles=4):
     """
     This function sleeps for the required number of seconds, increases 
     the volume, and repeats the process as many times as necessary.
