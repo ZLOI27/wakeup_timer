@@ -4,10 +4,9 @@ import socket
 import os
 import time
 import sys
-import json
+import yaml
 import datetime
 import asyncio
-from default_configs import default_configs as dc # FIXME
 
 
 STREAM = "http://online.video.rbc.ru/online/rbctv_1080p/index.m3u8"
@@ -21,9 +20,15 @@ async def main() -> None:
     """
     This programm set timer to wakeup system from suspend and open videostream.
     """
+    default_configs_obj = DefaultConfigs()
     suspend = None
-    config = get_config_from_file()
-
+    config = get_config_from_file(default_configs_obj)
+    if config == None:
+        create_configfile(default_configs_obj)
+        config = get_config_from_file(default_configs_obj)
+        if config == None:
+            print("\033[31The program could not create a configuration file. Exit.\033[0m")
+            sys.exit()
     if len(sys.argv) > 1 and sys.argv[1] == 's':
         time_wakeup = (config[0], config[1])
         suspend = bool(config[2])
@@ -175,17 +180,16 @@ def ask_suspend() -> bool:
         sys.exit()
 
 
-def get_config_from_file(path=os.path.expanduser('~/Desktop/config_wakeup_timer.json')) -> tuple:
+def get_config_from_file(default_configs_obj: 'DefaultConfigs') -> any:
     """This function open config file and read time."""
     try:
-        with open(path, mode='r', encoding='utf-8',) as file:
-            data_dict = json.load(file)
-            return (data_dict['hour'], data_dict['minute'], data_dict['suspend'])
+        with open(file=f'{default_configs_obj.PATH_TO_USER_CONFIGFILE}', mode='r', encoding='utf-8',) as config_file:
+            data_dict = yaml.safe_load(config_file)
+            return (data_dict['date_time']['hour'], data_dict['date_time']['minute'], data_dict['common']['suspend'])
     except OSError as error:
         print("\033[31mProblems with the config file, see log.txt.\033[0m")
         write_log(str(error))
-        # FIXME: if have problem, need to create new file 
-        return False
+        return None
         
 
 
@@ -195,12 +199,13 @@ def write_log(message: str, path=os.path.expanduser('~/Desktop/log.txt')) -> boo
         with open(path, mode='a', encoding='utf-8') as file_log:
             file_log.write(f"\n{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}: {message}")
         return True
-    except OSError:
+    except OSError as error:
         print("\033[31mProblems with the log file.\033[0m")
+        print(error)
         return False
 
 
-async def control_volume(init_vol=20, percents_vol=15, max_vol=100, time_delay=300, cycles=4):
+async def control_volume(init_vol=20, percents_vol=15, max_vol=100, delay=300, cycles=4) -> bool:
     """
     This function sleeps for the required number of seconds, increases 
     the volume, and repeats the process as many times as necessary.
@@ -208,8 +213,79 @@ async def control_volume(init_vol=20, percents_vol=15, max_vol=100, time_delay=3
     os.system(f"pactl set-sink-volume @DEFAULT_SINK@ {init_vol}%")
     for i in range(cycles):
         os.system(f"pactl get-sink-volume @DEFAULT_SINK@")
-        await asyncio.sleep(time_delay)
+        await asyncio.sleep(delay)
         os.system(f"pactl set-sink-volume @DEFAULT_SINK@ +{percents_vol}%")
+    return True
+
+
+def create_configfile(default_configs_obj: 'DefaultConfigs'):
+    """Сreating a file with user configurations in case it is missing."""
+    try:
+        with open(file=f'{default_configs_obj.PATH_TO_USER_CONFIGFILE}', mode='w', encoding='utf-8') as config_file:
+            yaml.safe_dump(default_configs_obj.create_data_for_yamlfile(), config_file)
+    except OSError as error:
+        print("\033[31mProblems with creating a config file.\033[0m")
+        write_log(str(error))
+
+
+class DefaultConfigs:
+    """
+    This singletone is used for store configs.
+    This is done for educational purposes.
+    """
+    _instance = None
+
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
+
+    def __init__(self):
+        self.TIME_WAKEUP = (5, 30)
+        self.SUSPEND = False
+        self.TIME_OF_NEWS = 3600  # Seconds
+        self.VIDEOPLAYER = "mpv"
+        self.OPTION = "--fullscreen=yes"
+        self.STREAM = "http://online.video.rbc.ru/online/rbctv_1080p/index.m3u8"
+        self.INIT_VOLUME = 20
+        self.PERCENTS_VOLUME = 15
+        self.MAX_VOLUME = 100
+        self.DELAY_RISE_VOLUME = 300
+        self.CYCLES_RISE_VOLUME = 4
+        self.PATH_TO_LOGFILE = os.path.join(os.getcwd(), 'log.txt')
+        self.PATH_TO_USER_CONFIGFILE = os.path.join(os.getcwd(), 'user_config.yaml')
+
+
+    def create_data_for_yamlfile(self) -> dict:
+        data = {
+            'date_time': {
+                'hour': self.TIME_WAKEUP[0],
+                'minute': self.TIME_WAKEUP[1],
+                'time_of_news': self.TIME_OF_NEWS,
+                },
+            'common': {
+                'suspend': False,
+            },
+            'stream': {
+                'videoplayer': self.VIDEOPLAYER,
+                'option': self.OPTION,
+                'stream': self.STREAM,
+                },
+            'volume_config': {
+                'init_volume': self.INIT_VOLUME,
+                'percent_volume': self.PERCENTS_VOLUME,
+                'max_volume': self.MAX_VOLUME,
+                'delay_rise_volume': self.DELAY_RISE_VOLUME,
+                'cycles_rise_volume': self.CYCLES_RISE_VOLUME,
+                },
+            'path': {
+                'path_to_logfile': self.PATH_TO_LOGFILE,
+                'path_to_user_configfile': self.PATH_TO_USER_CONFIGFILE,
+                },
+            }
+        return data
 
 
 if __name__ == "__main__":

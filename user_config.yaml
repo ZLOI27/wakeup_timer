@@ -1,0 +1,19 @@
+common:
+  suspend: false
+date_time:
+  hour: 5
+  minute: 30
+  time_of_news: 3600
+path:
+  path_to_logfile: /home/zk/wakeup_timer/log.txt
+  path_to_user_configfile: /home/zk/wakeup_timer/user_config.yaml
+stream:
+  option: --fullscreen=yes
+  stream: http://online.video.rbc.ru/online/rbctv_1080p/index.m3u8
+  videoplayer: mpv
+volume_config:
+  cycles_rise_volume: 4
+  delay_rise_volume: 300
+  init_volume: 20
+  max_volume: 100
+  percent_volume: 15
